@@ -33,8 +33,27 @@ gpg -v --keyserver hkps://keyserver.ubuntu.com --verify harbor-offline-installer
 
 `tar xzvf harbor-offline-installer-v2.9.0.tgz`
 
-# 4. Configure Harbor using harbor.yml
+# 4. Configure Harbor using `harbor.yml`
 Harbor needs a configuration file which is used to prepare the installation.
 Refference YML file can be found [here](../artifacts/basic-harbor.yml)
 
 # 5. Configure HTTPS
+
+**Note: Harbor can be configured with IP Address/Hostname/DNS.**
+**In this example IP Address is used **
+
+Create CA certificate and key.
+```
+openssl genrsa -out ca.key 4096
+
+openssl req -x509 -new -nodes -sha512 -days 3650 \
+ -subj "/C=CN/ST=India/L=India/O=rdeb/OU=Personal/CN=45.79.121.182" \
+ -key ca.key \
+ -out ca.crt
+```
+# 6. Install Harbor
+Go inside the un-archived directory of harbor and execute the following commands one after other.
+```
+./prepare
+./install.sh --with-trivy
+```

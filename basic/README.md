@@ -39,10 +39,9 @@ Refference YML file can be found [here](../artifacts/basic-harbor.yml)
 
 # 5. Configure HTTPS
 
-**Note: Harbor can be configured with IP Address/Hostname/DNS.**
-**In this example IP Address is used **
+**Note: Harbor can be configured with IP Address/Hostname/DNS. In this example IP Address is used**
 
-Create CA certificate and key.
+1. Create CA certificate and key.
 ```
 openssl genrsa -out ca.key 4096
 
@@ -50,6 +49,49 @@ openssl req -x509 -new -nodes -sha512 -days 3650 \
  -subj "/C=CN/ST=India/L=India/O=rdeb/OU=Personal/CN=45.79.121.182" \
  -key ca.key \
  -out ca.crt
+```
+2. Create Server Certificate
+```
+openssl genrsa -out harbor.key 4096
+
+openssl req -sha512 -new \
+-subj "/C=CN/ST=India/L=India/O=rdeb/OU=Personal/CN=45.79.121.182" \
+-key harbor.key \
+-out harbor.csr
+
+cat > v3.ext <<-EOF
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1=45.79.121.182
+DNS.2=45.79.121.182
+DNS.3=45.79.121.182
+EOF
+
+openssl x509 -req -sha512 -days 3650 \
+-extfile v3.ext \
+-CA ca.crt -CAkey ca.key -CAcreateserial \
+-in harbor.csr \
+-out harbor.crt
+```
+3. Copy the Certificates in respective directories.
+```
+mkdir -p /data/cert/
+cp harbor.crt /data/cert/
+cp harbor.key /data/cert/
+openssl x509 -inform PEM -in harbor.crt -out harbor.cert
+mkdir -p /etc/docker/certs.d/45.79.121.182
+cp harbor.cert /etc/docker/certs.d/45.79.121.182/
+cp harbor.key /etc/docker/certs.d/45.79.121.182/
+cp ca.crt /etc/docker/certs.d/45.79.121.182/
+```
+4. Restart Docker for the certificates to take effect.
+```
+systemctl restart docker
 ```
 # 6. Install Harbor
 Go inside the un-archived directory of harbor and execute the following commands one after other.

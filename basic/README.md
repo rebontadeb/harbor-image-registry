@@ -30,10 +30,11 @@ gpg -v --keyserver hkps://keyserver.ubuntu.com --verify harbor-offline-installer
 
 ```
 3. Untar the Package 
+
 `tar xzvf harbor-offline-installer-v2.9.0.tgz`
 
 # Configure Harbor using harbor.yml
 Harbor needs a configuration file which is used to prepare the installation.
-Refference YML file can be found [here](artifacts/basic-harbor.yml)
+Refference YML file can be found [here](./artifacts/basic-harbor.yml)
 
 # Configure HTTPS
